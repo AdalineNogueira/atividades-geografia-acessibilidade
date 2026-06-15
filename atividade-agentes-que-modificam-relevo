@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentes que Modificam o Relevo — Atividade de Geografia</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #f5f5f0; color: #1a1a1a; }
+  .container { max-width: 720px; margin: 0 auto; padding: 2rem 1rem; }
+  h1 { font-size: 24px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+  .subtitle { font-size: 14px; color: #666; margin-bottom: 1.5rem; }
+  .section-title { font-size: 16px; font-weight: 700; color: #1a1a1a; margin: 1.5rem 0 0.75rem; border-left: 4px solid #1D9E75; padding-left: 10px; }
+  .tab-bar { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .tab { font-size: 13px; padding: 8px 18px; border-radius: 999px; border: 1.5px solid #ccc; background: #fff; color: #555; cursor: pointer; font-weight: 500; }
+  .tab.active { background: #1D9E75; color: #fff; border-color: #1D9E75; }
+  .tab:hover:not(.active) { background: #f0f0f0; }
+  .section { display: none; }
+  .section.visible { display: block; }
+
+  /* Guia Visual */
+  .visual-map { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.25rem; }
+  .map-row { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+  .map-icon { font-size: 36px; min-width: 44px; }
+  .map-name { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+  .map-def { font-size: 13px; color: #555; line-height: 1.5; margin-top: 3px; }
+  .badge { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 999px; margin-top: 6px; font-weight: 700; }
+  .badge-endo { background: #FAECE7; color: #993C1D; }
+  .badge-exo { background: #E6F1FB; color: #185FA5; }
+  .divider { border: none; border-top: 1px solid #eee; margin: 12px 0; }
+
+  /* Classificar */
+  .check-group { margin-bottom: 1rem; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 1rem; }
+  .check-label { font-size: 14px; font-weight: 700; color: #1a1a1a; margin-bottom: 10px; }
+  .check-options { display: flex; gap: 10px; flex-wrap: wrap; }
+  .check-opt { background: #f8f8f8; border: 1.5px solid #ddd; border-radius: 8px; padding: 8px 18px; font-size: 13px; cursor: pointer; font-weight: 500; }
+  .check-opt:hover { border-color: #999; }
+  .check-opt.selected { border: 2px solid #378ADD; background: #E6F1FB; color: #0C447C; }
+  .check-opt.c-ok { border: 2px solid #639922 !important; background: #EAF3DE !important; color: #27500A !important; }
+  .check-opt.c-wrong { border: 2px solid #A32D2D !important; background: #FCEBEB !important; color: #501313 !important; }
+
+  /* Quiz */
+  .quiz-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+  .question { font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 1rem; }
+  .q-num { display: inline-block; background: #1D9E75; color: #fff; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 2px 10px; margin-right: 8px; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option-btn { background: #f8f8f8; border: 1.5px solid #ddd; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #1a1a1a; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 10px; }
+  .option-btn:hover:not(:disabled) { background: #f0f0f0; }
+  .option-btn.correct { background: #EAF3DE; border-color: #639922; color: #27500A; font-weight: 700; }
+  .option-btn.wrong { background: #FCEBEB; border-color: #A32D2D; color: #501313; }
+  .opt-icon { font-size: 18px; min-width: 22px; }
+  .feedback { font-size: 13px; margin-top: 10px; padding: 10px 14px; border-radius: 8px; }
+  .feedback.ok { background: #EAF3DE; color: #27500A; }
+  .feedback.err { background: #FCEBEB; color: #501313; }
+
+  /* Score */
+  .score-bar { background: #f0faf5; border: 1.5px solid #1D9E75; border-radius: 12px; padding: 1rem 1.5rem; display: flex; align-items: center; gap: 16px; margin-top: 1rem; }
+  .score-num { font-size: 32px; font-weight: 700; color: #1D9E75; min-width: 48px; }
+
+  /* Associar */
+  .match-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .match-col-title { font-size: 12px; font-weight: 700; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .match-item { background: #fff; border: 1.5px solid #ddd; border-radius: 8px; padding: 10px 14px; font-size: 13px; cursor: pointer; margin-bottom: 8px; line-height: 1.4; }
+  .match-item:hover:not(.matched) { border-color: #999; }
+  .match-item.active { border: 2px solid #378ADD; background: #E6F1FB; color: #0C447C; font-weight: 700; }
+  .match-item.matched { border: 2px solid #639922; background: #EAF3DE; color: #27500A; pointer-events: none; font-weight: 700; }
+  .match-item.wrong-match { border: 2px solid #A32D2D; background: #FCEBEB; animation: shake 0.3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+  /* Buttons */
+  .verify-btn { background: #1D9E75; color: #fff; border: none; border-radius: 8px; padding: 11px 28px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 1rem; }
+  .verify-btn:hover { background: #0F6E56; }
+  .feedback-box { margin-top: 12px; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; }
+  .feedback-box.success { background: #EAF3DE; color: #27500A; }
+  .feedback-box.partial { background: #FAEEDA; color: #633806; }
+
+  /* Footer */
+  .footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #e0e0e0; font-size: 12px; color: #999; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🌍 Agentes que Modificam o Relevo</h1>
+  <p class="subtitle">Atividade de Geografia — Agentes Endógenos e Exógenos</p>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="showTab('guia', this)">📖 Guia Visual</button>
+    <button class="tab" onclick="showTab('classifica', this)">🗂️ Classificar</button>
+    <button class="tab" onclick="showTab('quiz', this)">❓ Questões</button>
+    <button class="tab" onclick="showTab('associa', this)">🔗 Associar</button>
+  </div>
+
+  <!-- GUIA VISUAL -->
+  <div class="section visible" id="tab-guia">
+    <p class="section-title">🔥 Agentes Endógenos — vêm de dentro da Terra</p>
+    <div class="visual-map">
+      <div class="map-row">
+        <div class="map-icon">🌋</div>
+        <div>
+          <div class="map-name">Vulcanismo</div>
+          <div class="map-def">Expulsão de magma, gases e cinzas pelo interior da Terra. Forma vulcões e ilhas vulcânicas. Exemplo: vulcão Etna (Itália).</div>
+          <span class="badge badge-endo">ENDÓGENO</span>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="map-row">
+        <div class="map-icon">🏔️</div>
+        <div>
+          <div class="map-name">Tectonismo (Dobramento e Falhamento)</div>
+          <div class="map-def">Movimentos das placas tectônicas que formam montanhas, serras e vales. Exemplo: formação dos Andes e do Himalaia.</div>
+          <span class="badge badge-endo">ENDÓGENO</span>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="map-row">
+        <div class="map-icon">💥</div>
+        <div>
+          <div class="map-name">Terremotos (Sismos)</div>
+          <div class="map-def">Tremores da Terra causados pelo choque ou deslizamento de placas tectônicas. Podem causar destruição e abrir falhas no solo.</div>
+          <span class="badge badge-endo">ENDÓGENO</span>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="map-row">
+        <div class="map-icon">🌊</div>
+        <div>
+          <div class="map-name">Maremoto (Tsunami)</div>
+          <div class="map-def">Ondas gigantes no oceano causadas por terremotos ou erupções submarinas. Modificam o litoral e a costa.</div>
+          <span class="badge badge-endo">ENDÓGENO</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-title">💨 Agentes Exógenos — agem na superfície da Terra</p>
+    <div class="visual-map">
+      <div class="map-row">
+        <div class="map-icon">🌬️</div>
+        <div>
+          <div class="map-name">Erosão pelo Vento</div>
+          <div class="map-def">O vento transporta partículas e desgasta rochas. Forma dunas e desertos. Exemplo: Deserto do Saara.</div>
+          <span class="badge badge-exo">EXÓGENO</span>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="map-row">
+        <div class="map-icon">🌧️</div>
+        <div>
+          <div class="map-name">Erosão pela Chuva e Rios</div>
+          <div class="map-def">A água da chuva e dos rios escava o solo, formando ravinas, cânions e vales. Exemplo: Cânion do Colorado.</div>
+          <span class="badge badge-exo">EXÓGENO</span>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="map-row">
+        <div class="map-icon">🌊</div>
+        <div>
+          <div class="map-name">Erosão pelo Mar (Abrasão)</div>
+          <div class="map-def">As ondas do mar desgastam as rochas da costa, formando falésias, praias e enseadas.</div>
+          <span class="badge badge-exo">EXÓGENO</span>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="map-row">
+        <div class="map-icon">🧊</div>
+        <div>
+          <div class="map-name">Erosão por Geleiras</div>
+          <div class="map-def">O gelo em movimento raspa e modela o relevo. Forma fiordos e vales em "U". Exemplo: fiordos da Noruega.</div>
+          <span class="badge badge-exo">EXÓGENO</span>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="map-row">
+        <div class="map-icon">☀️</div>
+        <div>
+          <div class="map-name">Intemperismo</div>
+          <div class="map-def">Temperatura, calor e frio fragmentam as rochas ao longo do tempo. Processo lento que decompõe minerais.</div>
+          <span class="badge badge-exo">EXÓGENO</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLASSIFICAR -->
+  <div class="section" id="tab-classifica">
+    <p class="section-title">🗂️ Classifique cada fenômeno</p>
+    <p style="font-size:13px;color:#666;margin-bottom:1rem;">Para cada fenômeno abaixo, escolha se é <strong>Endógeno</strong> (vem de dentro da Terra) ou <strong>Exógeno</strong> (age na superfície).</p>
+    <div id="classifica-form"></div>
+    <button class="verify-btn" onclick="verificarClassifica()">✅ Verificar respostas</button>
+    <div id="classifica-feedback"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="section" id="tab-quiz">
+    <p class="section-title">❓ Questões de múltipla escolha</p>
+    <div id="quiz-container"></div>
+    <div class="score-bar" id="score-bar" style="display:none">
+      <div class="score-num" id="score-num">0/5</div>
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#1a1a1a">Resultado final</div>
+        <div style="font-size:13px;color:#666">Questões respondidas</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSOCIAR -->
+  <div class="section" id="tab-associa">
+    <p class="section-title">🔗 Associe o fenômeno à sua descrição</p>
+    <p style="font-size:13px;color:#666;margin-bottom:1rem;">Clique em um item da coluna esquerda e depois clique na definição correta da coluna direita.</p>
+    <div class="match-cols">
+      <div>
+        <div class="match-col-title">🌍 Fenômeno</div>
+        <div id="match-left"></div>
+      </div>
+      <div>
+        <div class="match-col-title">📝 Definição</div>
+        <div id="match-right"></div>
+      </div>
+    </div>
+    <div id="match-feedback" style="margin-top:12px;font-size:14px;font-weight:500;color:#555;"></div>
+    <button class="verify-btn" style="display:none" id="reset-match" onclick="resetMatch()">🔄 Reiniciar</button>
+  </div>
+
+  <div class="footer">Atividade criada para aluno surdo — Geografia do Ensino Fundamental/Médio</div>
+</div>
+
+<script>
+function showTab(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('visible');
+  el.classList.add('active');
+}
+
+// CLASSIFICAR
+const classificaData = [
+  { fenomeno: '🌋 Vulcanismo', gabarito: 'endo' },
+  { fenomeno: '🏔️ Tectonismo', gabarito: 'endo' },
+  { fenomeno: '💥 Terremoto', gabarito: 'endo' },
+  { fenomeno: '🌊 Maremoto (Tsunami)', gabarito: 'endo' },
+  { fenomeno: '🌬️ Erosão pelo Vento', gabarito: 'exo' },
+  { fenomeno: '🌧️ Erosão pela Chuva', gabarito: 'exo' },
+  { fenomeno: '🧊 Erosão por Geleiras', gabarito: 'exo' },
+  { fenomeno: '☀️ Intemperismo', gabarito: 'exo' },
+];
+
+function buildClassifica() {
+  const form = document.getElementById('classifica-form');
+  form.innerHTML = '';
+  classificaData.forEach((item, i) => {
+    const group = document.createElement('div');
+    group.className = 'check-group';
+    group.innerHTML = `
+      <div class="check-label">${item.fenomeno}</div>
+      <div class="check-options">
+        <div class="check-opt" id="c-${i}-endo" onclick="selectClassifica(${i},'endo')">🔥 Endógeno</div>
+        <div class="check-opt" id="c-${i}-exo" onclick="selectClassifica(${i},'exo')">💨 Exógeno</div>
+      </div>
+    `;
+    form.appendChild(group);
+  });
+}
+buildClassifica();
+
+function selectClassifica(i, tipo) {
+  document.getElementById('c-'+i+'-endo').classList.remove('selected');
+  document.getElementById('c-'+i+'-exo').classList.remove('selected');
+  document.getElementById('c-'+i+'-'+tipo).classList.add('selected');
+}
+
+function verificarClassifica() {
+  let acertos = 0;
+  classificaData.forEach((item, i) => {
+    const endoEl = document.getElementById('c-'+i+'-endo');
+    const exoEl = document.getElementById('c-'+i+'-exo');
+    endoEl.classList.remove('c-ok','c-wrong');
+    exoEl.classList.remove('c-ok','c-wrong');
+    const selEndo = endoEl.classList.contains('selected');
+    const selExo = exoEl.classList.contains('selected');
+    if (!selEndo && !selExo) return;
+    if (selEndo && item.gabarito === 'endo') { endoEl.classList.add('c-ok'); acertos++; }
+    else if (selExo && item.gabarito === 'exo') { exoEl.classList.add('c-ok'); acertos++; }
+    else if (selEndo) endoEl.classList.add('c-wrong');
+    else if (selExo) exoEl.classList.add('c-wrong');
+  });
+  const fb = document.getElementById('classifica-feedback');
+  const total = classificaData.length;
+  if (acertos === total) {
+    fb.innerHTML = '<div class="feedback-box success">🎉 Parabéns! Você acertou todos os '+total+' fenômenos!</div>';
+  } else {
+    fb.innerHTML = '<div class="feedback-box partial">Você acertou '+acertos+' de '+total+'. Os marcados em vermelho estão errados — revise o Guia Visual!</div>';
+  }
+}
+
+// QUIZ
+const quizData = [
+  {
+    q: 'Qual agente ENDÓGENO é responsável pela formação de montanhas e serras pelo choque de placas tectônicas?',
+    opts: ['🌋 Vulcanismo','🏔️ Tectonismo','🌊 Erosão pelo Mar','🌬️ Erosão pelo Vento'],
+    ans: 1, exp: 'O Tectonismo é o movimento das placas tectônicas que dobra e parte as rochas, formando montanhas.'
+  },
+  {
+    q: 'O Tsunami (Maremoto) é causado principalmente por qual agente interno?',
+    opts: ['☀️ Intemperismo','🌬️ Vento forte','💥 Terremoto submarino ou erupção vulcânica','🧊 Geleiras'],
+    ans: 2, exp: 'O Maremoto é gerado por terremotos ou vulcões no fundo do oceano — um agente endógeno.'
+  },
+  {
+    q: 'A erosão pelo vento, pela chuva e pelas geleiras são exemplos de agentes:',
+    opts: ['🔥 Endógenos','💨 Exógenos','🌋 Vulcânicos','💥 Sísmicos'],
+    ans: 1, exp: 'Esses agentes atuam na superfície terrestre — são EXÓGENOS.'
+  },
+  {
+    q: 'O intemperismo é o processo que:',
+    opts: ['Forma vulcões','Decompõe e fragmenta rochas na superfície ao longo do tempo','Gera tsunamis','Move as placas tectônicas'],
+    ans: 1, exp: 'O intemperismo é a desintegração e decomposição lenta das rochas pela temperatura, água e outros fatores externos.'
+  },
+  {
+    q: 'Qual das alternativas traz apenas agentes ENDÓGENOS do relevo?',
+    opts: ['Vento, chuva, geleiras','🌋 Vulcanismo, 💥 Terremoto, 🏔️ Tectonismo','Rio, vento, mar','Intemperismo, abrasão, erosão'],
+    ans: 1, exp: 'Vulcanismo, Terremoto e Tectonismo vêm do interior da Terra — são todos endógenos.'
+  }
+];
+
+let answers = Array(quizData.length).fill(null);
+let correct = 0;
+
+function buildQuiz() {
+  const c = document.getElementById('quiz-container');
+  c.innerHTML = '';
+  quizData.forEach((q, qi) => {
+    const box = document.createElement('div');
+    box.className = 'quiz-box';
+    let optsHtml = q.opts.map((o, oi) =>
+      '<button class="option-btn" id="opt-'+qi+'-'+oi+'" onclick="answerQ('+qi+','+oi+')">' +
+      '<span class="opt-icon" id="icon-'+qi+'-'+oi+'">○</span><span>'+o+'</span></button>'
+    ).join('');
+    box.innerHTML = '<div class="question"><span class="q-num">Q'+(qi+1)+'</span>'+q.q+'</div>' +
+      '<div class="options">'+optsHtml+'</div>' +
+      '<div class="feedback" id="fb-'+qi+'" style="display:none"></div>';
+    c.appendChild(box);
+  });
+}
+buildQuiz();
+
+function answerQ(qi, oi) {
+  if (answers[qi] !== null) return;
+  answers[qi] = oi;
+  const isCorrect = oi === quizData[qi].ans;
+  if (isCorrect) correct++;
+  quizData[qi].opts.forEach((_, i) => {
+    const btn = document.getElementById('opt-'+qi+'-'+i);
+    const icon = document.getElementById('icon-'+qi+'-'+i);
+    btn.disabled = true;
+    if (i === quizData[qi].ans) { btn.classList.add('correct'); icon.textContent = '✔'; }
+    else if (i === oi && !isCorrect) { btn.classList.add('wrong'); icon.textContent = '✘'; }
+  });
+  const fb = document.getElementById('fb-'+qi);
+  fb.style.display = 'block';
+  fb.className = 'feedback ' + (isCorrect ? 'ok' : 'err');
+  fb.textContent = (isCorrect ? '✅ Correto! ' : '❌ Incorreto. ') + quizData[qi].exp;
+  if (answers.every(a => a !== null)) {
+    document.getElementById('score-bar').style.display = 'flex';
+    document.getElementById('score-num').textContent = correct+'/'+quizData.length;
+  }
+}
+
+// ASSOCIAR
+const matchLeft = [
+  { id: 0, label: '🌋 Vulcanismo' },
+  { id: 1, label: '💥 Terremoto' },
+  { id: 2, label: '🌊 Maremoto' },
+  { id: 3, label: '🌬️ Erosão Eólica' },
+  { id: 4, label: '🧊 Erosão Glacial' },
+];
+const matchRight = [
+  { id: 3, label: 'Vento transporta partículas e forma dunas' },
+  { id: 0, label: 'Magma, cinzas e gases expelidos pelo interior' },
+  { id: 4, label: 'Geleiras esculpem vales em U e fiordos' },
+  { id: 1, label: 'Tremores causados pelo choque de placas tectônicas' },
+  { id: 2, label: 'Ondas gigantes geradas por sismos submarinos' },
+];
+let selectedLeft = null;
+let matchedPairs = [];
+
+function buildMatch() {
+  const ml = document.getElementById('match-left');
+  const mr = document.getElementById('match-right');
+  ml.innerHTML = ''; mr.innerHTML = '';
+  matchLeft.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'match-item';
+    div.id = 'ml-'+item.id;
+    div.textContent = item.label;
+    div.onclick = () => selectLeft(item.id);
+    ml.appendChild(div);
+  });
+  matchRight.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'match-item';
+    div.id = 'mr-'+item.id;
+    div.textContent = item.label;
+    div.onclick = () => selectRight(item.id);
+    mr.appendChild(div);
+  });
+}
+buildMatch();
+
+function selectLeft(id) {
+  if (matchedPairs.includes(id)) return;
+  document.querySelectorAll('#match-left .match-item').forEach(el => el.classList.remove('active'));
+  selectedLeft = id;
+  document.getElementById('ml-'+id).classList.add('active');
+}
+
+function selectRight(id) {
+  if (selectedLeft === null) return;
+  if (matchedPairs.includes(id)) return;
+  if (selectedLeft === id) {
+    document.getElementById('ml-'+selectedLeft).classList.remove('active');
+    document.getElementById('ml-'+selectedLeft).classList.add('matched');
+    document.getElementById('mr-'+id).classList.add('matched');
+    matchedPairs.push(id);
+    selectedLeft = null;
+    if (matchedPairs.length === matchLeft.length) {
+      document.getElementById('match-feedback').textContent = '🎉 Parabéns! Você associou todos corretamente!';
+      document.getElementById('reset-match').style.display = 'inline-block';
+    }
+  } else {
+    const wrongEl = document.getElementById('mr-'+id);
+    wrongEl.classList.add('wrong-match');
+    setTimeout(() => wrongEl.classList.remove('wrong-match'), 400);
+    document.getElementById('match-feedback').textContent = '❌ Não é essa. Tente outra definição.';
+  }
+}
+
+function resetMatch() {
+  selectedLeft = null; matchedPairs = [];
+  document.getElementById('match-feedback').textContent = '';
+  document.getElementById('reset-match').style.display = 'none';
+  buildMatch();
+}
+</script>
+</body>
+</html>
